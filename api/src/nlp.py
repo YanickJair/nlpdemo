@@ -39,3 +39,9 @@ def get_animals(doc):
         nlp.add_pipe(animal_component)
     except ValueError as ve:
         return [(ent.text, ent.label_) for ent in doc.ents if ent.label_ == "ANIMAL"]
+
+def sentiment_analysis(text):
+    assert isinstance(text, str)
+    from transformers import pipeline
+    classifier = pipeline("sentiment-analysis")
+    return classifier(text)
