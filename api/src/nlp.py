@@ -1,13 +1,7 @@
-import spacy
 from spacy.tokens import Span
 from spacy.matcher import PhraseMatcher
 
-nlp = spacy.load("en_core_web_sm")
-
-def make_doc(TEXT):
-    return nlp(TEXT)    
-
-def animal_component(doc):
+def animal_component(doc, vocab):
     animals = [
         "Golden Retriever",
         "cat",
@@ -19,7 +13,7 @@ def animal_component(doc):
         "lion",
         "tigger"
     ]
-    matcher = PhraseMatcher(nlp.vocab)
+    matcher = PhraseMatcher(vocab)
     mathes = matcher(doc)
     span = [Span(doc, start, end, label="ANIMAL") for matcher_id, start, end in mathes]
     doc.ents = span
@@ -45,3 +39,6 @@ def sentiment_analysis(text):
     from transformers import pipeline
     classifier = pipeline("sentiment-analysis")
     return classifier(text)
+
+def get_verbs(doc):
+    return [(token.text, token.pos_) for token in doc if token.pos_ == "VERB" or token.pos_ == "AUX"]

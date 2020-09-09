@@ -1,19 +1,23 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 
-from src import wiki
-from src import nlp
+import src
 from src import get_dataset
+from src import nlp as NLP
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+nlp = None
+classifier = None
+summarizer = None
+
 @app.route("/")
 @cross_origin()
 def home():
     data = {
-        "search": wiki.get_result("Like")
+        "search": src.wiki.get_result("Like")
     }
     print(data)
     return jsonify(data)
@@ -21,17 +25,38 @@ def home():
 @app.route("/analysis", methods=["POST"])
 @cross_origin()
 def analysis():
+    assert nlp
+    assert classifier
+    assert summarizer
+
     if request.method == 'POST':
+        import string 
+
         data = request.get_json()
-        doc = nlp.make_doc(data["text"])
+        doc = make_doc(data["text"].replace("@", ""))
         res = {}
         if "persons" in data["configs"]:
-            res["PERSONS"] = nlp.get_persons(doc)
+            res["PERSONS"] = NLP.get_persons(doc)
         if "entities" in data["configs"]:
-            res["ENTITIES"] = nlp.get_entities(doc)  
-
+            res["ENTITIES"] = NLP.get_entities(doc)  
         if "countries" in data["configs"]:
-            res["COUNTRIES"] = nlp.get_countries(doc)
+            res["COUNTRIES"] = NLP.get_countries(doc)
+        if "verbs" in data["configs"]:
+            res["VERBS"] = NLP.get_verbs(doc)
+        if "sentiment" in data["configs"]:
+            data = request.get_json()
+            text = data["text"].translate(str.maketrans('', '', string.punctuation))
+            sa = NLP.sentiment_analysis(text)
+            res["SENTIMENT_ANALYSIS"] = sa
+        if "summarize" in data["configs"]:
+            summarized = summarizer(
+                data["text"],
+                max_length=118,
+                min_length=30,
+                do_sample=False
+            )
+            res["summarized"] = summarized[0]["summary_text"] 
+        
     return jsonify(res)
 
 @app.route("/dataset/<int:size>", methods=["GET"])
@@ -46,9 +71,33 @@ def dataset(size=10):
 @cross_origin()
 def sentiment_analysis():
     assert request.method == "POST"
+
+    import string 
+    
     data = request.get_json()
-    res = nlp.sentiment_analysis(data["text"])
+    text = data["text"].translate(str.maketrans('', '', string.punctuation))
+    res = NLP.sentiment_analysis(text)
     return jsonify(res)
 
+def make_doc(TEXT):
+    return nlp(TEXT)
+
+with app.app_context():
+    nlp
+    classifier
+
+    from transformers import pipeline
+    
+    import spacy
+    from spacy.tokens import Span
+    from spacy.matcher import PhraseMatcher
+
+    from transformers import pipeline
+
+    summarizer = pipeline("summarization")
+    classifier = pipeline("sentiment-analysis")
+
+    nlp = spacy.load("en_core_web_sm")
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
