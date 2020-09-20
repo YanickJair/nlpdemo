@@ -19,7 +19,6 @@ def home():
     data = {
         "search": src.wiki.get_result("Like")
     }
-    print(data)
     return jsonify(data)
 
 @app.route("/analysis", methods=["POST"])
@@ -30,10 +29,11 @@ def analysis():
     assert summarizer
 
     if request.method == 'POST':
-        import string 
+        import string
 
         data = request.get_json()
         doc = make_doc(data["text"].replace("@", ""))
+
         res = {}
         if "persons" in data["configs"]:
             res["PERSONS"] = NLP.get_persons(doc)
@@ -57,12 +57,14 @@ def analysis():
             )
             res["summarized"] = summarized[0]["summary_text"] 
         
+        timer = NLP.get_timer()
+        res["time_spent"] = timer
+        
     return jsonify(res)
 
 @app.route("/dataset/<int:size>", methods=["GET"])
 @cross_origin()
 def dataset(size=10):
-    print(size)
     if request.method == 'GET':
         dataset = get_dataset.load()
         return jsonify(dataset[0:size:])
