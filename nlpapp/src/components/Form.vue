@@ -1,21 +1,28 @@
 <template>
-    <v-form
-        class="ma-10 mt-5"
-        ref="form"
-        v-model="valid"
-        lazy-validation
-    >
-        <v-text-field
-            v-model="text"
-            :counter="90"
-            label="Name"
-            required
-        ></v-text-field>
-    </v-form>
+    <v-text-field
+        class="ma-4"
+        v-model="_text"
+        :counter="90"
+        label="search word"
+        outlined
+        required
+    ></v-text-field>
 </template>
 
 <script>
 export default {
-    props: ["valid", "text"]
+    props: ["text"],
+    data() {
+        return {
+            valid: true,
+        }
+    },
+
+    computed: {
+        _text: {
+            get() { return this.text; },
+            set(val) { this.$emit("searchText", val); }
+        }
+    }
 }
 </script>

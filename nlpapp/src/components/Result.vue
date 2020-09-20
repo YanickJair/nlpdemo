@@ -38,6 +38,14 @@
                             </v-list-item-content>
                         </v-list-item>
                     </v-col>
+                    <v-col cols="12">
+                        <v-card flat class="transparent">
+                            <ChartTimer
+                                :chartdata="_chartdata"
+                                :options="options"
+                            />
+                        </v-card>
+                    </v-col>
                 </v-row>
             </v-card>
         </v-dialog>
@@ -45,14 +53,40 @@
 </template>
 
 <script>
+
+import ChartTimer from './charts/Timer';
+
 export default {
-    props: ["result", "dialog", "text", "SENTIMENT_ANALYSIS", "summarized"],
+    props: ["result", "dialog", "text", "SENTIMENT_ANALYSIS", "summarized", "chartdata"],
+    components: { ChartTimer },
+    data() {
+        return {
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+            }
+        }
+    },
     computed: {
         _dialog: {
             get() { return this.dialog; },
             set(val) {
                 this.$emit("closeResult", val);
             }
+        },
+        _chartdata() {
+            return this.chartdata ? {
+                labels: this.chartdata.labels,
+                datasets: [
+                    {
+                        label: 'Time Spent in Fraction of Seconds',
+                        fill: '-1',
+                        backgroundColor: '#36a2eb',
+                        borderColor: '#36a2eb',
+                        data: this.chartdata.data
+                    }
+                ]
+            } : null
         }
     }
 }

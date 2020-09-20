@@ -55,10 +55,23 @@
 
             <!-- Form and text Displayer -->
             <v-col cols="8" class="mt-5">
-                <v-row v-for="(post, i) in dataset" :key="i">
-                    <v-col cols="12">
+                <v-row >
+                    <v-col>
+                        <Form
+                            :text="text"
+                            v-on:searchText="val => text = val"
+                        />
+                    </v-col>
+                    <v-col cols="12" v-for="(post, i) in dataset" :key="i">
                         <v-card outlined>
-                            <Displayer :text="post" />
+                            <component
+                                :is="cc"
+                                v-bind="{
+                                    text: post,
+                                    search: text,
+                                    className: 'context_' + i,
+                                }"
+                            ></component>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn
@@ -82,7 +95,7 @@
             :text="text"
             v-on:closeResult="val => resultDialog = val"
             :summarized="summarized"
-
+            :chartdata="chartdata"
         />
 
         <!-- Loader -->
@@ -94,7 +107,6 @@
 </template>
 
 <script>
-import Mark from 'mark.js';
 import axios from 'axios';
 import _ from 'lodash';
 
@@ -121,6 +133,7 @@ export default {
 
     data() {
         return {
+            cc: Displayer,
             defaultData: true,
             analyzed: [],
             valid: true,
@@ -139,26 +152,12 @@ export default {
             resultDialog: false,
             dataset: [],
             loading: false,
-            SENTIMENT_ANALYSIS: null
+            SENTIMENT_ANALYSIS: null,
+            chartdata: null
         }
     },
   
     watch:{
-        text(val) {
-            var markInstance = new Mark(document.querySelector(".context"));
-
-            var options = {};
-            [].forEach.call(this.optionInputs, function(opt) {
-                options[opt.value] = opt.checked;
-            });
-
-            markInstance.unmark({
-                done: function(){
-                    markInstance.mark(val, options);
-                }
-            });
-        },
-
         analysis_res(val) {
             this.getIitems(val)
         },
@@ -174,6 +173,7 @@ export default {
         async analyze(pos, post) {
             try {
                 this.loading = true;
+    
                 const res = await axios.post("http://127.0.0.1:5000/analysis", {
                     text: post,
                     configs: this.getConfig(post)
@@ -198,9 +198,7 @@ export default {
             if (this.numbers) config.push("numbers");
             if (this.verbs) config.push("verbs");
             if (this.summarizer) config.push("summarize");
-            if (this.sentiment && post.length > 200 && !this.summarizer) {
-                config.push("sentiment");
-            }
+            if (this.sentiment && post.length > 200 && !this.summarizer) config.push("sentiment");
             return config;
         },
 
@@ -212,6 +210,11 @@ export default {
         getIitems(val) {
             if (!_.isNil(val.SENTIMENT_ANALYSIS)) this.SENTIMENT_ANALYSIS = val.SENTIMENT_ANALYSIS;
             if (!_.isNil(val.summarized)) this.summarized = val.summarized;
+            this.chartdata = {
+                labels: val.time_spent.labels,
+                data: val.time_spent.data
+            };
+            console.log(this.chartdata);
             this.items = [
                 {
                     name: "PERSONS",
