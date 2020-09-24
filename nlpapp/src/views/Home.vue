@@ -18,7 +18,7 @@
                     class="transparent text-center"
                     prominent
                 >
-                    Comments from Facebook
+                    YELP Reviews
                 </v-alert>
             </v-col>
 
@@ -55,21 +55,21 @@
 
             <!-- Form and text Displayer -->
             <v-col cols="8" class="mt-5">
-                <v-row >
+                <v-row v-if="!loading">
                     <v-col>
                         <Form
                             :text="text"
                             v-on:searchText="val => text = val"
                         />
                     </v-col>
-                    <v-col cols="12" v-for="(post, i) in dataset" :key="i">
+                    <v-col cols="12" v-for="review in dataset" :key="review.review_id">
                         <v-card outlined>
                             <component
                                 :is="cc"
                                 v-bind="{
-                                    text: post,
+                                    text: review.text,
                                     search: text,
-                                    className: 'context_' + i,
+                                    className: 'context_' + review.review_id,
                                 }"
                             ></component>
                             <v-card-actions>
@@ -78,12 +78,23 @@
                                     outlined
                                     color="indigo"
                                     small
-                                    @click="analyze(i, post)"
+                                    @click="analyze(review.review_id, review.text)"
                                 >Analyze</v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-col>
                 </v-row>
+
+                <v-container class="fill-height" fluid v-else>
+                    <v-row align="center" justify="center">
+                        <v-col cols="12" sm="8" md="4">
+                            <v-progress-circular
+                                indeterminate
+                                color="primary"
+                            ></v-progress-circular>
+                        </v-col>
+                    </v-row>
+                 </v-container>
             </v-col>
         </v-row>
 
@@ -99,10 +110,10 @@
         />
 
         <!-- Loader -->
-        <Loader
+        <!--Loader
             :loading="loading"
             v-on:loading="val => loading = val"
-        />
+        /-->
     </v-container>
 </template>
 
@@ -198,13 +209,18 @@ export default {
             if (this.numbers) config.push("numbers");
             if (this.verbs) config.push("verbs");
             if (this.summarizer) config.push("summarize");
-            if (this.sentiment && post.length > 200 && !this.summarizer) config.push("sentiment");
+            if (this.sentiment /* && post.length > 200 */ && !this.summarizer) config.push("sentiment");
             return config;
         },
 
         async getDataset() {
-            const res = await axios.get("http://127.0.0.1:5000/dataset/5");
-            this.dataset = res.data;
+            try {
+                let rating = 1;
+                const res = await axios.get(`http://127.0.0.1:5000/yelp-dataset/${rating}`);
+                this.dataset = res.data.slice(0, 10);
+            } catch (error) {
+                console.log(error)
+            }
         },
 
         getIitems(val) {
@@ -253,7 +269,9 @@ export default {
     },
 
     mounted() {
+        this.loading = true;
         this.getDataset();
+        this.loading = false;
     }
 }
 </script>

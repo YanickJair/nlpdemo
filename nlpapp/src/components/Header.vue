@@ -3,7 +3,7 @@
         <v-app-bar
             dark
         >
-            <v-toolbar-title>NLP DEMO - Python + Spacy</v-toolbar-title>
+            <v-toolbar-title>Natural Language Processing - Demo</v-toolbar-title>
 
             <v-spacer></v-spacer>
             <v-switch

@@ -4,10 +4,11 @@
             v-model="_dialog"
             width="100%"
             height="100%"
-            max-width="600"
-            max-height="500"
+            max-width="800"
+            max-height="800"
         >
-            <v-card>
+            <v-card
+            >
                 <v-row>
                     <v-col cols="6">
                         <v-list-item two-line v-if="SENTIMENT_ANALYSIS">
@@ -39,12 +40,12 @@
                         </v-list-item>
                     </v-col>
                     <v-col cols="12">
-                        <v-card flat class="transparent">
-                            <ChartTimer
-                                :chartdata="_chartdata"
-                                :options="options"
-                            />
-                        </v-card>
+                        <ChartTimer
+                            max-height="200"
+                            :height="200"
+                            :chartdata="_chartdata"
+                            :options="options"
+                        />
                     </v-col>
                 </v-row>
             </v-card>
