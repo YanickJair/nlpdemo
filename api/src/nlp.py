@@ -15,7 +15,13 @@ def get_timer():
 
 def timer(func):
     def f(*args, **kwargs):
-        key =  args[0].text + ':' + func.__name__
+        global time_spent, labels, data, timed_phrase
+
+        if func.__name__ == 'sentiment_analysis':
+            key =  args[0] + ':' + func.__name__
+            print(args)
+        else:
+            key =  args[0].text + ':' + func.__name__
         if key not in timed_phrase:
             before = time.perf_counter()
             rv = func(*args, **kwargs)

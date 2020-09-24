@@ -47,6 +47,7 @@ def analysis():
             data = request.get_json()
             text = data["text"].translate(str.maketrans('', '', string.punctuation))
             sa = NLP.sentiment_analysis(text)
+            print("SA: ", sa)
             res["SENTIMENT_ANALYSIS"] = sa
         if "summarize" in data["configs"]:
             summarized = summarizer(
@@ -68,6 +69,16 @@ def dataset(size=10):
     if request.method == 'GET':
         dataset = get_dataset.load()
         return jsonify(dataset[0:size:])
+
+@app.route("/yelp-dataset/<int:rating>", methods=["GET"])
+@cross_origin()
+def yelp_dataset(rating=5):
+    try:
+        if request.method == 'GET':
+            dataset = get_dataset.load_yelp_reviews()
+            return jsonify(dataset[rating])
+    except:
+        raise
 
 @app.route("/sentiment-analysis", methods=["POST"])
 @cross_origin()
