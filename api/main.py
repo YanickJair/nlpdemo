@@ -12,6 +12,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 nlp = None
 classifier = None
 summarizer = None
+tokenizer = None
+question_model = None
 
 @app.route("/")
 @cross_origin()
@@ -49,15 +51,7 @@ def analysis():
             sa = NLP.sentiment_analysis(text)
             print("SA: ", sa)
             res["SENTIMENT_ANALYSIS"] = sa
-        if "summarize" in data["configs"]:
-            summarized = summarizer(
-                data["text"],
-                max_length=118,
-                min_length=30,
-                do_sample=False
-            )
-            res["summarized"] = summarized[0]["summary_text"] 
-        
+            
         timer = NLP.get_timer()
         res["time_spent"] = timer
         
@@ -85,32 +79,72 @@ def yelp_dataset(rating=5):
 def sentiment_analysis():
     assert request.method == "POST"
 
-    import string 
+    import string
     
     data = request.get_json()
     text = data["text"].translate(str.maketrans('', '', string.punctuation))
     res = NLP.sentiment_analysis(text)
     return jsonify(res)
 
+@app.route("/answer-question", methods=["POST"])
+@cross_origin()
+def answer_question():
+    assert request.method == "POST"
+
+    data = request.get_json()
+    answer = NLP.answer_question(
+        question=data["question"],
+        TEXT=data["text"],
+        tokenizer=tokenizer,
+        model=question_model
+    )
+    return jsonify({"answer": answer})        
+
+@app.route("/summarizer", methods=["POST"])
+@cross_origin()
+def summarizer():
+    assert request.method == "POST"
+
+    data = request.get_json()
+    summarized = summarizer(
+        data["text"],
+        max_length=118,
+        min_length=30,
+        do_sample=False
+    )
+    summary_text = summarized[0]["summary_text"]
+    return jsonify({"summary_text": summary_text})  
+
 def make_doc(TEXT):
     return nlp(TEXT)
 
 with app.app_context():
-    nlp
-    classifier
+    try:
+        nlp
+        classifier
 
-    from transformers import pipeline
-    
-    import spacy
-    from spacy.tokens import Span
-    from spacy.matcher import PhraseMatcher
+        from transformers import pipeline
+        
+        import spacy
+        from spacy.tokens import Span
+        from spacy.matcher import PhraseMatcher
+        
+        from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+        import torch
 
-    from transformers import pipeline
+        from transformers import pipeline
 
-    summarizer = pipeline("summarization")
-    classifier = pipeline("sentiment-analysis")
+        #* Summarization model
+        summarizer = pipeline("summarization")
 
-    nlp = spacy.load("en_core_web_sm")
+        #* Sentiment Analysis model
+        classifier = pipeline("sentiment-analysis")
 
-if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
+        #* Instantiate a tokenizer
+        tokenizer = AutoTokenizer.from_pretrained("bert-large-uncased-whole-word-masking-finetuned-squad")
+        #* Question Answer mdoel
+        question_model = AutoModelForQuestionAnswering.from_pretrained("bert-large-uncased-whole-word-masking-finetuned-squad")
+
+        nlp = spacy.load("en_core_web_sm")
+    except:
+        raise

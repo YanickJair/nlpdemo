@@ -82,4 +82,38 @@ def sentiment_analysis(text):
 
 @timer
 def get_verbs(doc):
-    return [(token.text, token.pos_) for token in doc if token.pos_ == "VERB" or token.pos_ == "AUX"]
+    return [
+        (token.text, token.pos_) for token in doc if token.pos_ == "VERB" or token.pos_ == "AUX"
+    ]
+
+""" 
+Extract question's response from a large text
+"""
+def answer_question(question=None, TEXT=None, tokenizer=None, model=None):
+    answer = None
+    try:
+        import torch
+
+        inputs = tokenizer(
+            question,
+            TEXT,
+            add_special_tokens=True,
+            return_tensors='pt'
+        )
+        input_ids = inputs["input_ids"].tolist()[0]
+
+        text_tokens = tokenizer.convert_ids_to_tokens(input_ids)
+        answer_start_scores, answer_end_scores = model(**inputs)
+
+        answer_start = torch.argmax(answer_start_scores)
+        answer_end = torch.argmax(answer_end_scores) + 1
+
+        #* Compute the possible answer to the question
+        answer = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(
+            input_ids[answer_start:answer_end]
+        ))
+        print(answer)
+    except:
+        raise
+    return answer
+
