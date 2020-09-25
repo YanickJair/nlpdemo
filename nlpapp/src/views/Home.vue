@@ -41,6 +41,8 @@
                             v-on:summarizer_="val => summarizer = val"
                             :sentiment="sentiment"
                             v-on:sentiment_="val => sentiment = val"
+                            :quiz="quiz"
+                            v-on:quiz_="val => quiz = val"
                         />
                     </v-col>
 
@@ -56,32 +58,43 @@
             <!-- Form and text Displayer -->
             <v-col cols="8" class="mt-5">
                 <v-row v-if="!loading">
-                    <v-col>
+                    <!--v-col v-if="!quiz">
                         <Form
                             :text="text"
                             v-on:searchText="val => text = val"
                         />
-                    </v-col>
-                    <v-col cols="12" v-for="review in dataset" :key="review.review_id">
-                        <v-card outlined>
-                            <component
-                                :is="cc"
-                                v-bind="{
-                                    text: review.text,
-                                    search: text,
-                                    className: 'context_' + review.review_id,
-                                }"
-                            ></component>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                    outlined
-                                    color="indigo"
-                                    small
-                                    @click="analyze(review.review_id, review.text)"
-                                >Analyze</v-btn>
-                            </v-card-actions>
-                        </v-card>
+                    </v-col-->
+
+                    <!-- Displayer Component -->
+                    <div v-if="!quiz && !summarizer">
+                        <v-col cols="12" v-for="review in dataset" :key="review.review_id" >
+                            <v-card outlined>
+                                <component
+                                    :is="cc"
+                                    v-bind="{
+                                        text: review.text,
+                                        search: text,
+                                        className: 'context_' + review.review_id,
+                                    }"
+                                ></component>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn
+                                        outlined
+                                        color="indigo"
+                                        small
+                                        @click="analyze(review.review_id, review.text)"
+                                    >Analyze</v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-col>
+                    </div>
+
+                    <!-- Question Answering or Summarize large Text-->
+                    <v-col cols="12" v-if="quiz || summarizer">
+                        <Quiz
+                            :componentType="quiz ? 'QUIZ' : 'SUMMARY'"
+                        />
                     </v-col>
                 </v-row>
 
@@ -94,7 +107,7 @@
                             ></v-progress-circular>
                         </v-col>
                     </v-row>
-                 </v-container>
+                </v-container>
             </v-col>
         </v-row>
 
@@ -128,6 +141,8 @@ import Displayer from '@/components/Displayer.vue';
 import Header from '@/components/Header.vue';
 import Loader from '@/components/Loader.vue';
 import Stats from '@/components/Stats.vue';
+import Quiz from '@/components/Quiz.vue';
+import Summarize from '@/components/Summarize.vue';
 
 export default {
     name: 'Home',
@@ -139,7 +154,9 @@ export default {
         Displayer,
         Header,
         Loader,
-        Stats
+        Stats,
+        Quiz,
+        Summarize
     },
 
     data() {
@@ -158,6 +175,7 @@ export default {
             summarizer: false,
             summarized: null,
             sentiment: false,
+            quiz: false,
             analysis_res: [],
             items: [],
             resultDialog: false,
@@ -177,6 +195,27 @@ export default {
             if (val) this.getDataset();
             else this.dataset = [];
             this.analyzed = [];
+        },
+
+        quiz(val) {
+            if (val) {
+                this.sentiment = false;
+                this.summarizer = false;
+            }
+        },
+
+        summarizer(val) {
+            if (val) {
+                this.sentiment = false;
+                this.quiz = false;
+            }
+        },
+
+        sentiment(val) {
+            if (val) {
+                this.summarizer = false;
+                this.quiz = false;
+            }
         }
     },
 
@@ -208,8 +247,7 @@ export default {
             if (this.entities) config.push("entities");
             if (this.numbers) config.push("numbers");
             if (this.verbs) config.push("verbs");
-            if (this.summarizer) config.push("summarize");
-            if (this.sentiment /* && post.length > 200 */ && !this.summarizer) config.push("sentiment");
+            if (this.sentiment /* && post.length > 200 */) config.push("sentiment");
             return config;
         },
 
@@ -225,7 +263,6 @@ export default {
 
         getIitems(val) {
             if (!_.isNil(val.SENTIMENT_ANALYSIS)) this.SENTIMENT_ANALYSIS = val.SENTIMENT_ANALYSIS;
-            if (!_.isNil(val.summarized)) this.summarized = val.summarized;
             this.chartdata = {
                 labels: val.time_spent.labels,
                 data: val.time_spent.data

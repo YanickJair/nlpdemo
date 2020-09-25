@@ -39,6 +39,10 @@
                     v-model="_summarizer"
                     label="Summarize"
                 ></v-switch>
+                <v-switch
+                    v-model="_quiz"
+                    label="Question Answering"
+                ></v-switch>
             </v-container>
         </v-card-actions>
     </v-card>
@@ -53,7 +57,8 @@ export default {
         "persons",
         "verbs",
         "summarizer",
-        "sentiment"
+        "sentiment",
+        "quiz"
     ],
 
     computed: {
@@ -117,6 +122,15 @@ export default {
             },
             set(val) {
                 this.$emit("sentiment_", val);
+            }
+        },
+
+        _quiz: {
+            get() {
+                return this.quiz;
+            },
+            set(val) {
+                this.$emit("quiz_", val);
             }
         }
     },
