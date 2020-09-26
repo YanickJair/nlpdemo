@@ -19,7 +19,6 @@ def timer(func):
 
         if func.__name__ == 'sentiment_analysis':
             key =  args[0] + ':' + func.__name__
-            print(args)
         else:
             key =  args[0].text + ':' + func.__name__
         if key not in timed_phrase:
@@ -112,7 +111,6 @@ def answer_question(question=None, TEXT=None, tokenizer=None, model=None):
         answer = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(
             input_ids[answer_start:answer_end]
         ))
-        print(answer)
     except:
         raise
     return answer

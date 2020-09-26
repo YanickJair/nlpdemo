@@ -4,7 +4,7 @@ import collections
 import pandas as pd
 
 def load():
-    p = '../dataset/yelp.csvdict_itemsdict_items'
+    p = ''
     posts = []
     with open(p, newline='') as f:
         spamreader = csv.DictReader(f)
@@ -29,7 +29,7 @@ review {
 }
 """
 def load_yelp_reviews():
-    review_subset = pd.read_csv('/home/yanick/KRAKEN/PIP/NLP/data/Yelp Dataset/yelp.csv')
+    review_subset = pd.read_csv('../dataset/yelp.csv')
 
     reviews_by_rating = collections.defaultdict(list)
 
