@@ -55,7 +55,7 @@ def analysis():
             
         timer = NLP.get_timer()
         res["time_spent"] = timer
-        
+    print(res)
     return jsonify(res)
 
 @app.route("/dataset/<int:size>", methods=["GET"])
@@ -65,13 +65,16 @@ def dataset(size=10):
         dataset = get_dataset.load()
         return jsonify(dataset[0:size:])
 
-@app.route("/yelp-dataset/<int:rating>", methods=["GET"])
+@app.route("/yelp-dataset/<int:start>/<int:end>", methods=["GET"])
 @cross_origin()
-def yelp_dataset(rating=5):
+def yelp_dataset(start=0, end=10):
     try:
         if request.method == 'GET':
-            dataset = get_dataset.load_yelp_reviews()
-            return jsonify(dataset[rating])
+            dataset, pages = get_dataset.load_yelp_reviews(start=start, end=end)
+            return jsonify({
+                "dataset": dataset,
+                "pages": pages
+            })
     except:
         raise
 

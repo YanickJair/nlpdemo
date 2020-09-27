@@ -28,11 +28,16 @@ review {
     funny
 }
 """
-def load_yelp_reviews():
+def load_yelp_reviews(start=0, end=10):
     review_subset = pd.read_csv('../dataset/yelp.csv')
 
-    reviews_by_rating = collections.defaultdict(list)
+    reviews = [] # collections.defaultdict(list)
+    pages = int(len(review_subset) / 10)
 
-    for _, row in review_subset.iterrows():
-        reviews_by_rating[row.stars].append(row.to_dict())
-    return reviews_by_rating
+    for _, row in review_subset[start:end].iterrows():
+        reviews.append({
+            "review_id": row.review_id,
+            "text": row.text
+        })
+        # reviews_by_rating[row.stars].append(row.to_dict())
+    return reviews, pages

@@ -11,7 +11,7 @@
 
             <v-col cols="12">
                  <v-alert
-                    v-if="defaultData"
+                    v-if="defaultData && !error"
                     dark
                     dense
                     icon="mdi-school"
@@ -20,6 +20,13 @@
                 >
                     YELP Reviews
                 </v-alert>
+
+                <Status
+                    v-if="error"
+                    :message="error.message"
+                    :type_="error.type_"
+                    :dismissible="error.dismissible"
+                />
             </v-col>
 
             <!-- Configurations -->
@@ -48,7 +55,7 @@
 
                     <v-col>
                         <Stats
-                            :size="dataset.length"
+                            :size="dataset_size * 10"
                             :analyzed="analyzed.length"
                         />
                     </v-col>
@@ -57,14 +64,14 @@
 
             <!-- Form and text Displayer -->
             <v-col cols="8" class="mt-5">
-                <v-row v-if="!loading">
-                    <!--v-col v-if="!quiz">
-                        <Form
-                            :text="text"
-                            v-on:searchText="val => text = val"
-                        />
-                    </v-col-->
+                <v-progress-linear
+                    v-if="loading"
+                    indeterminate
+                    color="cyan"
+                    class="mt-4"
+                ></v-progress-linear>
 
+                <v-row>
                     <!-- Displayer Component -->
                     <div v-if="!quiz && !summarizer">
                         <v-col cols="12" v-for="review in dataset" :key="review.review_id" >
@@ -86,7 +93,23 @@
                                         @click="analyze(review.review_id, review.text)"
                                     >Analyze</v-btn>
                                 </v-card-actions>
+
+                                <v-card-text>
+                                    <ExResult
+                                        v-if="beenAnalyzed(review.review_id) != null"
+                                        :result="beenAnalyzed(review.review_id)[0].analysi"
+                                        :text="text"
+                                    />
+                                </v-card-text>
                             </v-card>
+                        </v-col>
+
+                        <v-col cols="12">
+                            <Pagination
+                                :page="page"
+                                :length="dataset_size"
+                                v-on:page_="val => page = val"
+                            />
                         </v-col>
                     </div>
 
@@ -97,36 +120,10 @@
                         />
                     </v-col>
                 </v-row>
-
-                <v-container class="fill-height" fluid v-else>
-                    <v-row align="center" justify="center">
-                        <v-col cols="12" sm="8" md="4">
-                            <v-progress-circular
-                                indeterminate
-                                color="primary"
-                            ></v-progress-circular>
-                        </v-col>
-                    </v-row>
-                </v-container>
             </v-col>
         </v-row>
 
         <!-- Result -->
-        <Result
-            :result="items"
-            :dialog="resultDialog"
-            :SENTIMENT_ANALYSIS="SENTIMENT_ANALYSIS"
-            :text="text"
-            v-on:closeResult="val => resultDialog = val"
-            :summarized="summarized"
-            :chartdata="chartdata"
-        />
-
-        <!-- Loader -->
-        <!--Loader
-            :loading="loading"
-            v-on:loading="val => loading = val"
-        /-->
     </v-container>
 </template>
 
@@ -136,13 +133,14 @@ import _ from 'lodash';
 
 import Configs from '@/components/Configs.vue';
 import Form from '@/components/Form.vue';
-import Result from '@/components/Result.vue';
 import Displayer from '@/components/Displayer.vue';
 import Header from '@/components/Header.vue';
-import Loader from '@/components/Loader.vue';
 import Stats from '@/components/Stats.vue';
 import Quiz from '@/components/Quiz.vue';
 import Summarize from '@/components/Summarize.vue';
+import Status from '@/components/utils/Status.vue';
+import Pagination from '@/components/utils/Pagination.vue';
+import ExResult from '@/components/utils/Result.vue';
 
 export default {
     name: 'Home',
@@ -150,13 +148,14 @@ export default {
     components: {
         Configs,
         Form,
-        Result,
         Displayer,
         Header,
-        Loader,
         Stats,
         Quiz,
-        Summarize
+        Summarize,
+        Status,
+        Pagination,
+        ExResult
     },
 
     data() {
@@ -182,14 +181,17 @@ export default {
             dataset: [],
             loading: false,
             SENTIMENT_ANALYSIS: null,
-            chartdata: null
+            chartdata: null,
+            error: null,
+            page: 1,
+            dataset_size: 0,
         }
     },
   
     watch:{
-        analysis_res(val) {
+        /* analysis_res(val) {
             this.getIitems(val)
-        },
+        }, */
 
         defaultData(val) {
             if (val) this.getDataset();
@@ -216,27 +218,41 @@ export default {
                 this.summarizer = false;
                 this.quiz = false;
             }
+        },
+
+        page(val) {
+            this.getDataset();
         }
     },
 
     methods: {
-        async analyze(pos, post) {
+        async analyze(review_id, post) {
             try {
-                this.loading = true;
-    
-                const res = await axios.post("http://127.0.0.1:5000/analysis", {
-                    text: post,
-                    configs: this.getConfig(post)
-                });
 
-                this.analysis_res = res.data;
-                if (!_.includes(this.analyzed, pos)) this.analyzed.push(pos);
-                this.loading = false;
-                this.resultDialog = true;
+                if (this.getConfig().length > 0) {
+                    this.loading = true;
+
+                    console.log(post)
+    
+                    const res = await axios.post("http://127.0.0.1:5000/analysis", {
+                        text: post,
+                        configs: this.getConfig(post)
+                    });
+
+                    this.analysis_res = res.data;
+                    console.log(res.data)
+                    if (_.filter(this.analyzed, ['review_id', review_id]).length == 0)
+                        this.analyzed.push({
+                            review_id: review_id,
+                            analysi: this.getIitems(res.data)
+                        });
+
+                    this.loading = false;
+                    this.resultDialog = true;
+                }
             } catch (error) {
                 this.loading = false;
                 this.resultDialog = false;
-                console.log(error)
             }
         },
         getConfig(post) {
@@ -253,12 +269,27 @@ export default {
 
         async getDataset() {
             try {
-                let rating = 1;
-                const res = await axios.get(`http://127.0.0.1:5000/yelp-dataset/${rating}`);
-                this.dataset = res.data.slice(0, 10);
+                this.loading = true;
+
+                let start = 0;
+                if (this.page == 1)
+                    start = 0;
+                else
+                    start = 10 * this.page;
+                let end = start + 10;
+                
+                const res = await axios.get(`http://127.0.0.1:5000/yelp-dataset/${start}/${end}`);
+                this.dataset = res.data.dataset;
+                this.dataset_size = res.data.pages;
             } catch (error) {
-                console.log(error)
+                this.loading = false;
+                this.error = {
+                    message: "Server Connection Error. Please try again later.",
+                    dismissible: false,
+                    type_: "error"
+                };
             }
+            this.loading = false;
         },
 
         getIitems(val) {
@@ -267,48 +298,55 @@ export default {
                 labels: val.time_spent.labels,
                 data: val.time_spent.data
             };
-            console.log(this.chartdata);
-            this.items = [
-                {
-                    name: "PERSONS",
-                    children: val.PERSONS ? val.PERSONS.map(p => {
-                        return {
-                            name: p[0]
-                        }
-                    }) : []
-                },
-                {
-                    name: "ENTITIES",
-                    children: val.ENTITIES ? val.ENTITIES.map(p => {
-                        return {
-                            name: `${ p[0] + ' : ' + p[1] }`
-                        }
-                    }) : []
-                },
-                {
-                    name: "COUNTRIES",
-                    children: val.COUNTRIES ? val.COUNTRIES.map(p => {
-                        return {
-                            name:  p[0]
-                        }
-                    }) : []
-                },
-                {
-                    name: "VERBS/AUX",
-                    children: val.VERBS ? val.VERBS.map(p => {
-                        return {
-                            name:  p[0]
-                        }
-                    }) : []
-                }
-            ]
+            return {
+                result: [
+                        {
+                        name: "PERSONS",
+                        children: val.PERSONS ? val.PERSONS.map(p => {
+                            return {
+                                name: p[0]
+                            }
+                        }) : []
+                    },
+                    {
+                        name: "ENTITIES",
+                        children: val.ENTITIES ? val.ENTITIES.map(p => {
+                            return {
+                                name: `${ p[0] + ' : ' + p[1] }`
+                            }
+                        }) : []
+                    },
+                    {
+                        name: "COUNTRIES",
+                        children: val.COUNTRIES ? val.COUNTRIES.map(p => {
+                            return {
+                                name:  p[0]
+                            }
+                        }) : []
+                    },
+                    {
+                        name: "VERBS/AUX",
+                        children: val.VERBS ? val.VERBS.map(p => {
+                            return {
+                                name:  p[0]
+                            }
+                        }) : []
+                    }
+                ],
+                SENTIMENT_ANALYSIS: this.SENTIMENT_ANALYSIS,
+                chartdata: this.chartdata
+            }
+        },
+
+        beenAnalyzed(review_id) {
+            return _.filter(this.analyzed, ['review_id', review_id]).length > 0
+                ? _.filter(this.analyzed, ['review_id', review_id])
+                : null;
         }
     },
 
     mounted() {
-        this.loading = true;
         this.getDataset();
-        this.loading = false;
     }
 }
 </script>
