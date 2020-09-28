@@ -11,3 +11,7 @@ This is a Demo projet working on Natural Processing Language testing some fundam
 ### Most important dependecies:
 1. [Spacy IO](https://spacy.io/) - Industrial-Strength Natural Language Processing
 2. [Hugging Face](https://huggingface.co/) - State-of-the-art Natural Language Processing for PyTorch and TensorFlow 2.0
+
+#### The project is divide in two parts
+1. NLP API - A Flask based api.
+2. NLP Web APP - Vue Js application
