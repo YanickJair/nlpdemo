@@ -19,4 +19,11 @@ This is a Demo projet working on Natural Processing Language testing some fundam
 #### Examples
 
 1. A question answering solution
-![photo_2020-09-28_13-13-25](https://user-images.githubusercontent.com/26607519/94431492-44ba2b00-018d-11eb-82f3-ad72a3348527.jpg)
+ ![photo_2020-09-28_13-13-25](https://user-images.githubusercontent.com/26607519/94431492-44ba2b00-018d-11eb-82f3-ad72a3348527.jpg)
+
+2. Text Summarization
+ ![photo_2020-09-28_13-13-32](https://user-images.githubusercontent.com/26607519/94431755-9a8ed300-018d-11eb-8efe-a263b0d913d6.jpg)
+
+
+# Note
+The repository is still under work. This is just an intro README to give the big picture of the project.
