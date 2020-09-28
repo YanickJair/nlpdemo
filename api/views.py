@@ -25,10 +25,6 @@ def home():
     }
     return jsonify(data) """
 
-@app.route('/')
-def home():
-   return "hello world!"
-
 @app.route("/analysis", methods=["POST"])
 @cross_origin()
 def analysis():
