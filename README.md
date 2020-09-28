@@ -15,3 +15,4 @@ This is a Demo projet working on Natural Processing Language testing some fundam
 #### The project is divide in two parts
 1. NLP API - A Flask based api.
 2. NLP Web APP - Vue Js application
+
