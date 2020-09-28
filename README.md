@@ -16,3 +16,7 @@ This is a Demo projet working on Natural Processing Language testing some fundam
 1. NLP API - A Flask based api.
 2. NLP Web APP - Vue Js application
 
+#### Examples
+
+1. A question answering solution
+![photo_2020-09-28_13-13-25](https://user-images.githubusercontent.com/26607519/94431492-44ba2b00-018d-11eb-82f3-ad72a3348527.jpg)
