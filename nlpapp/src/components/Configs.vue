@@ -7,42 +7,46 @@
             <v-container class="px-0 ml-10" fluid>
                 <v-switch
                     v-model="countries_"
-                    label="Countries"
-                ></v-switch>
+                    label="Countries">
+                </v-switch>
 
                 <v-switch
                     v-model="entities_"
-                    label="Entities"
-                ></v-switch>
+                    label="Entities">
+                </v-switch>
 
                 <v-switch
                     v-model="numbers_"
-                    label="Numbers"
-                ></v-switch>
+                    label="Numbers">
+                </v-switch>
 
                 <v-switch
                     v-model="persons_"
-                    label="Persons"
-                ></v-switch>
+                    label="Persons">
+                </v-switch>
 
                 <v-switch
                     v-model="verbs_"
-                    label="Verbs"
-                ></v-switch>
+                    label="Verbs">
+                </v-switch>
 
                 <v-divider></v-divider>
                 <v-switch
                     v-model="_sentiment"
-                    label="Sentiment Analysis"
-                ></v-switch>
+                    label="Sentiment Analysis">
+                </v-switch>
                 <v-switch
                     v-model="_summarizer"
-                    label="Summarize"
-                ></v-switch>
+                    label="Summarize">
+                </v-switch>
                 <v-switch
                     v-model="_quiz"
-                    label="Question Answering"
-                ></v-switch>
+                    label="Question Answering">
+                </v-switch>
+                <v-switch
+                    label="Word Analogy"
+                    v-model="_word_analogy">
+                </v-switch>
             </v-container>
         </v-card-actions>
     </v-card>
@@ -58,7 +62,8 @@ export default {
         "verbs",
         "summarizer",
         "sentiment",
-        "quiz"
+        "quiz",
+        "word_analogy"
     ],
 
     computed: {
@@ -131,6 +136,14 @@ export default {
             },
             set(val) {
                 this.$emit("quiz_", val);
+            }
+        },
+        _word_analogy: {
+            get() {
+                return this.word_analogy;
+            },
+            set(val) {
+                this.$emit("word_analogy_", val);
             }
         }
     },

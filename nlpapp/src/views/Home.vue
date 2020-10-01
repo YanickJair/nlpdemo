@@ -50,6 +50,8 @@
                             v-on:sentiment_="val => sentiment = val"
                             :quiz="quiz"
                             v-on:quiz_="val => quiz = val"
+                            :word_analogy="word_analogy"
+                            v-von:word_analogy_="val => word_analogy = val"
                         />
                     </v-col>
 
@@ -173,6 +175,7 @@ export default {
             persons: true,
             summarizer: false,
             summarized: null,
+            word_analogy: false,
             sentiment: false,
             quiz: false,
             analysis_res: [],

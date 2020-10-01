@@ -77,10 +77,9 @@ def get_animals(doc):
         return [(ent.text, ent.label_) for ent in doc.ents if ent.label_ == "ANIMAL"]
 
 @timer
-def sentiment_analysis(text):
+def sentiment_analysis(text, classifier):
     assert isinstance(text, str)
     from transformers import pipeline
-    classifier = pipeline("sentiment-analysis")
     return classifier(text)
 
 @timer
@@ -122,7 +121,7 @@ def answer_question(question=None, TEXT=None, tokenizer=None, model=None):
 """ 
 Word Analogy Class
 """
-class PreTrainedEmbeddings(object):
+class WorldAnalogyModel(object):
     def __init__(self, word_to_index, word_vectors):
         """ 
         Args:
@@ -132,7 +131,7 @@ class PreTrainedEmbeddings(object):
         self.word_to_index = word_to_index
         self.word_vectors = word_vectors
 
-        self.index_to_word = { v: k for k in self.word_to_index.items() }
+        self.index_to_word = { v: k for k, v in self.word_to_index.items() }
         self.index = AnnoyIndex(len(word_vectors[0]), metric='euclidean')
 
         for _, i in self.word_to_index.items():
@@ -141,6 +140,7 @@ class PreTrainedEmbeddings(object):
 
     @classmethod
     def from_embeddings_file(cls, embedding_file):
+        assert embedding_file
         """ 
         Args:
             embedding_file (str) -> path to the csv file
@@ -177,7 +177,7 @@ class PreTrainedEmbeddings(object):
         nn_indices = self.index.get_nns_by_vector(vector, n)
         return [self.index_to_word[neighbor] for neighbor in nn_indices]
     
-    def compute_analogy(self, word1, word2, word3):
+    def compute_analogy(self, word1, word2=None, word3=None):
         """
         Args:
             word1 (str)
@@ -186,15 +186,19 @@ class PreTrainedEmbeddings(object):
         Returns:
             closest_words (list) -> a list of nearest neighbors
         """
-        vec1 = self.get_embedding(word1)
-        vec2 = self.get_embedding(word2)
-        vec3 = self.get_embedding(word3)
+        vec = self.get_embedding(word1)
+        n = 8
+
+        if word2 and word3:
+            n = 4
+            vec2 = self.get_embedding(word2)
+            vec3 = self.get_embedding(word3)
+            
+            # Symple hypothesis: Analogy is a spatial relationship
+            spatial_relationship = vec2 - vec
+            vec = vec3 + spatial_relationship
         
-        # Symple hypothesis: Analogy is a spatial relationship
-        spatial_relationship = vec2 - vec1
-        vec4 = vec3 + spatial_relationship
-        
-        closest_words = self.get_closest_to_vector(vec4, n=4)
+        closest_words = self.get_closest_to_vector(vec, n=n)
         existng_words = set([word1, word2, word3])
         closest_words = [word for word in closest_words if word not in existng_words]
         

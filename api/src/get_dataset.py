@@ -29,7 +29,7 @@ review {
 }
 """
 def load_yelp_reviews(start=0, end=10):
-    review_subset = pd.read_csv('../../dataset/yelp.csv')
+    review_subset = pd.read_csv('/home/yanick/KRAKEN/PIP/NLP/demo/dataset/yelp.csv')
 
     reviews = [] # collections.defaultdict(list)
     pages = int(len(review_subset) / 10)
@@ -41,3 +41,5 @@ def load_yelp_reviews(start=0, end=10):
         })
         # reviews_by_rating[row.stars].append(row.to_dict())
     return reviews, pages
+
+load_yelp_reviews()
