@@ -23,7 +23,7 @@ classifier = None
 summarizer_ = None
 tokenizer = None
 question_model = None
-word_analogy_model = NLP.WorldAnalogyModel
+word_analogy_model = None
 
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -36,34 +36,37 @@ Description:
 @app.route("/analysis", methods=["POST"])
 @cross_origin()
 def analysis():
-    global classifier
-    if request.method == 'POST':
-        import string
+    try:
+        global classifier
+        if request.method == 'POST':
+            import string
 
-        data = request.get_json()
-        doc = make_doc(data["text"].replace("@", ""))
-
-        res = {}
-        if "persons" in data["configs"]:
-            res["PERSONS"] = NLP.get_persons(doc)
-        if "entities" in data["configs"]:
-            res["ENTITIES"] = NLP.get_entities(doc)  
-        if "countries" in data["configs"]:
-            res["COUNTRIES"] = NLP.get_countries(doc)
-        if "verbs" in data["configs"]:
-            res["VERBS"] = NLP.get_verbs(doc)
-        if "sentiment" in data["configs"]:
-            if classifier is None:
-                classifier = pipeline("sentiment-analysis", device=0)
             data = request.get_json()
-            text = data["text"].translate(str.maketrans('', '', string.punctuation))
-            sa = NLP.sentiment_analysis(text, classifier)
-            res["SENTIMENT_ANALYSIS"] = sa
-            
-        timer = NLP.get_timer()
-        res["time_spent"] = timer
-    print(res)
-    return jsonify(res)
+            assert data["text"]
+            doc = make_doc(data["text"].replace("@", ""))
+
+            res = {}
+            if "persons" in data["configs"]:
+                res["PERSONS"] = NLP.get_persons(doc)
+            if "entities" in data["configs"]:
+                res["ENTITIES"] = NLP.get_entities(doc)  
+            if "countries" in data["configs"]:
+                res["COUNTRIES"] = NLP.get_countries(doc)
+            if "verbs" in data["configs"]:
+                res["VERBS"] = NLP.get_verbs(doc)
+            if "sentiment" in data["configs"]:
+                if classifier is None:
+                    classifier = pipeline("sentiment-analysis", device=0)
+                data = request.get_json()
+                text = data["text"].translate(str.maketrans('', '', string.punctuation))
+                sa = NLP.sentiment_analysis(text, classifier)
+                res["SENTIMENT_ANALYSIS"] = sa
+                
+            timer = NLP.get_timer()
+            res["time_spent"] = timer
+        return jsonify(res)
+    except:
+        raise
 
 
 @app.route("/dataset/<int:size>", methods=["GET"])
@@ -132,7 +135,6 @@ def summarizer():
         summarizer_ = pipeline("summarization")
     
     data = request.get_json()
-    print(len(data["text"]))
     summarized = summarizer_(
         data["text"],
         max_length=round(int(len(data["text"]) * 0.2) / 2),
@@ -151,7 +153,7 @@ def word_analogy():
 
     if word_analogy_model is None:
         import os.path
-        word_analogy_model = word_analogy_model.from_embeddings_file(os.path.join("dataset", word_analogy_file))
+        word_analogy_model = NLP.WorldAnalogyModel.from_embeddings_file(os.path.join("dataset", word_analogy_file))
     data = request.get_json()
     assert data["word1"]
 
