@@ -75,8 +75,15 @@ def dataset(size=10):
     if request.method == 'GET':
         dataset = get_dataset.load()
         return jsonify(dataset[0:size:])
-        
 
+
+""" 
+Description:
+    Load Dataset from Yelp review file
+Args:
+    start (ind)
+    end (int)
+"""
 @app.route("/yelp-dataset/<int:start>/<int:end>", methods=["GET"])
 @cross_origin()
 def yelp_dataset(start=0, end=10):
@@ -104,6 +111,13 @@ def sentiment_analysis():
     return jsonify(res)
 
 
+""" 
+Description:
+    Make analysi prediction on a review
+Returns:
+    label (str)
+    score (float)
+"""
 @app.route("/answer-question", methods=["POST"])
 @cross_origin()
 def answer_question():
