@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import ChartTimer from '../charts/Timer';
+import ChartTimer from './charts/Timer';
 
 export default {
     props: ["result"],

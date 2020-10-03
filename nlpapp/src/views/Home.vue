@@ -2,14 +2,6 @@
     <v-container grid-list-xs>     
         <v-row>
             <v-col cols="12">
-                <Header
-                    :default="defaultData"
-                    v-on:setDefaultData="val => defaultData = val"
-                    v-on:addData="val => dataset.push(val)"
-                />
-            </v-col>
-
-            <v-col cols="12">
                  <v-alert
                     v-if="defaultData && !error"
                     dark
@@ -51,7 +43,7 @@
                             :quiz="quiz"
                             v-on:quiz_="val => quiz = val"
                             :word_analogy="word_analogy"
-                            v-von:word_analogy_="val => word_analogy = val"
+                            v-on:word_analogy_="val => word_analogy = val"
                         />
                     </v-col>
 
@@ -75,7 +67,7 @@
 
                 <v-row>
                     <!-- Displayer Component -->
-                    <div v-if="!quiz && !summarizer">
+                    <div v-if="!quiz && !summarizer && !word_analogy">
                         <v-col cols="12" v-for="review in dataset" :key="review.review_id" >
                             <v-card outlined>
                                 <component
@@ -86,6 +78,7 @@
                                         className: 'context_' + review.review_id,
                                     }"
                                 ></component>
+
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
                                     <v-btn
@@ -116,16 +109,24 @@
                     </div>
 
                     <!-- Question Answering or Summarize large Text-->
-                    <v-col cols="12" v-if="quiz || summarizer">
-                        <Quiz
+                    <v-col cols="12" v-if="(quiz || summarizer) && !word_analogy">
+                        <QuizAndSummarization
                             :componentType="quiz ? 'QUIZ' : 'SUMMARY'"
+                        />
+                    </v-col>
+
+                    <v-col cols="12" v-if="word_analogy">
+                        <WordAnalogy
+                            :loading="loading"
+                            v-on:loading_="val => loading = val"
                         />
                     </v-col>
                 </v-row>
             </v-col>
         </v-row>
 
-        <!-- Result -->
+        <!-- Footer -->
+        
     </v-container>
 </template>
 
@@ -133,16 +134,16 @@
 import axios from 'axios';
 import _ from 'lodash';
 
-import Configs from '@/components/Configs.vue';
-import Form from '@/components/Form.vue';
-import Displayer from '@/components/Displayer.vue';
-import Header from '@/components/Header.vue';
-import Stats from '@/components/Stats.vue';
-import Quiz from '@/components/Quiz.vue';
-import Summarize from '@/components/Summarize.vue';
-import Status from '@/components/utils/Status.vue';
-import Pagination from '@/components/utils/Pagination.vue';
-import ExResult from '@/components/utils/Result.vue';
+import Configs from '@/components/Configs';
+import Form from '@/components/Form';
+import Displayer from '@/components/Displayer';
+import Stats from '@/components/Stats';
+import QuizAndSummarization from '@/components/QuizAndSummarization';
+import Summarize from '@/components/Summarize';
+import Status from '@/components/utils/Status';
+import Pagination from '@/components/utils/Pagination';
+import ExResult from '@/components/Result';
+import WordAnalogy from '@/components/WordAnalogy'
 
 export default {
     name: 'Home',
@@ -151,13 +152,13 @@ export default {
         Configs,
         Form,
         Displayer,
-        Header,
         Stats,
-        Quiz,
+        QuizAndSummarization,
         Summarize,
         Status,
         Pagination,
-        ExResult
+        ExResult,
+        WordAnalogy,
     },
 
     data() {
@@ -204,22 +205,25 @@ export default {
 
         quiz(val) {
             if (val) {
-                this.sentiment = false;
                 this.summarizer = false;
+                this.word_analogy = false;
+                this.disableConfigFields();
             }
         },
 
         summarizer(val) {
             if (val) {
-                this.sentiment = false;
                 this.quiz = false;
+                this.word_analogy = false;
+                this.disableConfigFields();
             }
         },
 
-        sentiment(val) {
+        word_analogy(val) {
             if (val) {
                 this.summarizer = false;
                 this.quiz = false;
+                this.disableConfigFields();
             }
         },
 
@@ -229,13 +233,19 @@ export default {
     },
 
     methods: {
+        disableConfigFields() {
+            this.sentiment = false;
+            this.countries = false;
+            this.entities = false;
+            this.verbs = false;
+            this.numbers = false;
+            this.persons = false;
+        },
         async analyze(review_id, post) {
             try {
 
                 if (this.getConfig().length > 0) {
                     this.loading = true;
-
-                    console.log(post)
     
                     const res = await axios.post("http://127.0.0.1:5000/analysis", {
                         text: post,
@@ -243,15 +253,22 @@ export default {
                     });
 
                     this.analysis_res = res.data;
-                    console.log(res.data)
-                    if (_.filter(this.analyzed, ['review_id', review_id]).length == 0)
-                        this.analyzed.push({
-                            review_id: review_id,
-                            analysi: this.getIitems(res.data)
-                        });
-
+                    const is_index = _.findIndex(this.analyzed, ['review_id', review_id]);
+                    const item = {
+                        review_id: review_id,
+                        analysi: this.getIitems(res.data)
+                    };
+                    if (is_index == -1) {
+                        console.log(res.data);
+                        this.analyzed.push(item);
+                    }
+                    else {
+                        console.log(res.data);
+                        this.analyzed[is_index] = { ...item };
+                    }
                     this.loading = false;
                     this.resultDialog = true;
+                    console.log(is_index);
                 }
             } catch (error) {
                 this.loading = false;
@@ -303,7 +320,7 @@ export default {
             };
             return {
                 result: [
-                        {
+                    {
                         name: "PERSONS",
                         children: val.PERSONS ? val.PERSONS.map(p => {
                             return {

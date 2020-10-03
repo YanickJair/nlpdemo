@@ -30,11 +30,12 @@
                     label="Verbs">
                 </v-switch>
 
-                <v-divider></v-divider>
                 <v-switch
                     v-model="_sentiment"
                     label="Sentiment Analysis">
                 </v-switch>
+
+                <v-divider></v-divider>
                 <v-switch
                     v-model="_summarizer"
                     label="Summarize">
