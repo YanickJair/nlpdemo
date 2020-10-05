@@ -1,4 +1,5 @@
 import csv
+import os
 import collections
 
 import pandas as pd
@@ -29,7 +30,7 @@ review {
 }
 """
 def load_yelp_reviews(start=0, end=10):
-    review_subset = pd.read_csv('/home/yanick/KRAKEN/PIP/NLP/demo/dataset/yelp.csv')
+    review_subset = pd.read_csv(os.getcwd() + '/dataset/yelp.csv')
 
     reviews = [] # collections.defaultdict(list)
     pages = int(len(review_subset) / 10)
