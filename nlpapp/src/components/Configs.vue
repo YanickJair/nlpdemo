@@ -79,7 +79,7 @@ export default {
 
         entities_: {
             get() {
-                return this.countries;
+                return this.entities;
             },
             set(val) {
                 this.$emit("entities_", val);
@@ -88,7 +88,7 @@ export default {
 
         numbers_: {
             get() {
-                return this.countries;
+                return this.numbers;
             },
             set(val) {
                 this.$emit("numbers_", val);
@@ -97,7 +97,7 @@ export default {
 
         persons_: {
             get() {
-                return this.countries;
+                return this.persons;
             },
             set(val) {
                 this.$emit("persons_", val);
@@ -106,7 +106,7 @@ export default {
 
         verbs_: {
             get() {
-                return this.countries;
+                return this.verbs;
             },
             set(val) {
                 this.$emit("verbs_", val);

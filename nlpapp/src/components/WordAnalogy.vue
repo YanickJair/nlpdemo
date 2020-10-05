@@ -7,6 +7,9 @@
             elevation="0"
         >
             Given a sequence of words or a word, predict the next word/words. This is also called the language modeling task.
+            This done by using GloVe. "GloVe is an unsupervised learning algorithm for obtaining vector representations for words.
+            Training is performed on aggregated global word-word co-occurrence statistics from a corpus, and the resulting representations showcase interesting linear substructures of the word vector space."
+            <br>More about GloVe can be found <a href="https://nlp.stanford.edu/projects/glove/" target="_blank">here</a>
         </v-alert>
         <v-form>
             <v-alert
@@ -152,7 +155,7 @@ export default {
                         this.clearFieldsAndReverse();
                     } else
                         this.error = 'please enter the words so we can try to make an analogy based on them.';
-                }              
+                }           
             } catch(error) {
                 console.log(error)
                 this.error = 'Internal Server Error. Please try again later.';
@@ -164,6 +167,7 @@ export default {
             this.word_1 = null;
             this.word_2 = null;
             this.word_3 = null;
+            this.error = null;
             _.reverse(this.analogies);
         },
 

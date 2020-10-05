@@ -27,7 +27,7 @@
                     <v-col cols="12">
                         <Configs 
                             :countries="countries"
-                            v-on:countries="val => countries = val"
+                            v-on:countries_="val => countries = val"
                             :entities="entities"
                             v-on:entities_="val => entities = val"
                             :verbs="verbs"
@@ -227,9 +227,14 @@ export default {
             }
         },
 
-        page(val) {
-            this.getDataset();
-        }
+        page(val) { this.getDataset(); },
+
+        sentiment(val) { if (val) this.disableDownConfigFields(); },
+        countries(val) { if (val) this.disableDownConfigFields(); },
+        entities(val) { if (val) this.disableDownConfigFields(); },
+        numbers(val) { if (val) this.disableDownConfigFields(); },
+        persons(val) { if (val) this.disableDownConfigFields(); },
+        verbs(val) { if (val) this.disableDownConfigFields(); }
     },
 
     methods: {
@@ -241,6 +246,13 @@ export default {
             this.numbers = false;
             this.persons = false;
         },
+
+        disableDownConfigFields() {
+            this.quiz = false;
+            this.word_analogy = false;
+            this.summarizer = false;
+        },
+        
         async analyze(review_id, post) {
             try {
 
@@ -268,9 +280,9 @@ export default {
                     }
                     this.loading = false;
                     this.resultDialog = true;
-                    console.log(is_index);
                 }
             } catch (error) {
+                console.log(error)
                 this.loading = false;
                 this.resultDialog = false;
             }
