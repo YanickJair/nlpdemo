@@ -42,5 +42,3 @@ def load_yelp_reviews(start=0, end=10):
         })
         # reviews_by_rating[row.stars].append(row.to_dict())
     return reviews, pages
-
-load_yelp_reviews()
