@@ -21,7 +21,7 @@ This is a Demo project working on Natural Processing Language testing some funda
 # Python API
  * ```yelp_dataset(start=0, end=10)``` - return a range of reviews with starting and end postion. The reviews are located in dataset/yelp.csv file
  * ```analyze(request)``` - Perform text mining on a POST request containing a text as input. The text mining are based on a configuration input array containing the desired mining actions: verbs, person, country etc
- * ```sentiment_analysis(request)``` - Perform a sentiment analysis on a given text input and return a dictionary ```{LABEL, score}```. LABEL can be eighter *POSITIVE* or *NEGATIVE*. The *score* is the acurracy probability
+ * ```sentiment_analysis(request)``` - Perform a sentiment analysis on a given text input and return a dictionary ```{LABEL, score}```. LABEL can be either *POSITIVE* or *NEGATIVE*. The *score* is the acurracy probability
  * ```answer_question(request)``` - inputs {text, question}. Extract answer from the input text based on the input question. Returns a answer dictionary ```{answer}```
  * ```summarizer(request)``` - inputs {text}. Summarize the input text. max_length for the summarization is ```round(int(len(data["text"]) * 0.2) / 2)``` and min_length is ```30```. 
 
