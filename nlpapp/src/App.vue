@@ -16,10 +16,6 @@ import Header from '@/components/Header';
 export default {
   name: 'App',
 
-  components: { Home, Header, Footer },
-
-  data: () => ({
-    //
-  }),
+  components: { Home, Header, Footer }
 };
 </script>
