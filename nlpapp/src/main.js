@@ -7,6 +7,11 @@ import vuetify from './plugins/vuetify';
 
 Vue.config.productionTip = false
 
+if (Vue.config.productionTip)
+  Vue.prototype.$BASE_URL = 'http://localhost:5000';
+else
+  Vue.prototype.$BASE_URL = 'https://nlpdemoapi.yandrade.dev';
+
 new Vue({
   router,
   store,

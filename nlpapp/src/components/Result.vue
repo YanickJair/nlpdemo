@@ -14,9 +14,9 @@
                                         {{ result.SENTIMENT_ANALYSIS[0].label }}
                                     </v-list-item-title>
 
-                                    <v-list-tile-sub-title class="text-center">
+                                    <v-list-item-subtitle class="text-center">
                                         {{ parseFloat(result.SENTIMENT_ANALYSIS[0].score.toFixed(6)) }}
-                                    </v-list-tile-sub-title>
+                                    </v-list-item-subtitle>
                                 </v-list-item-content>
                             </v-list-item>
                         </v-col>

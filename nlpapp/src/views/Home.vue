@@ -259,7 +259,7 @@ export default {
                 if (this.getConfig().length > 0) {
                     this.loading = true;
     
-                    const res = await axios.post("http://127.0.0.1:5000/analysis", {
+                    const res = await axios.post( `${this.$BASE_URL}/analysis`, {
                         text: post,
                         configs: this.getConfig(post)
                     });
@@ -271,18 +271,20 @@ export default {
                         analysi: this.getIitems(res.data)
                     };
                     if (is_index == -1) {
-                        console.log(res.data);
                         this.analyzed.push(item);
                     }
                     else {
-                        console.log(res.data);
                         this.analyzed[is_index] = { ...item };
                     }
                     this.loading = false;
                     this.resultDialog = true;
                 }
             } catch (error) {
-                console.log(error)
+                this.error = {
+                    message: "Server Connection Error. Please try again later.",
+                    dismissible: false,
+                    type_: "error"
+                };
                 this.loading = false;
                 this.resultDialog = false;
             }
@@ -295,11 +297,11 @@ export default {
             if (this.entities) config.push("entities");
             if (this.numbers) config.push("numbers");
             if (this.verbs) config.push("verbs");
-            if (this.sentiment /* && post.length > 200 */) config.push("sentiment");
+            if (this.sentiment) config.push("sentiment");
             return config;
         },
 
-        async getDataset() {
+        getDataset() {
             try {
                 this.loading = true;
 
@@ -310,9 +312,23 @@ export default {
                     start = 10 * this.page;
                 let end = start + 10;
                 
-                const res = await axios.get(`http://127.0.0.1:5000/yelp-dataset/${start}/${end}`);
-                this.dataset = res.data.dataset;
-                this.dataset_size = res.data.pages;
+                const res = axios.get(`${this.$BASE_URL}/yelp-dataset/${start}/${end}`)
+                    .then(
+                        res => {
+                            this.dataset = res.data.dataset;
+                            this.dataset_size = res.data.pages;
+                        }
+                    ).catch(
+                        error => {
+                            this.loading = false;
+                            this.error = {
+                                message: "Server Connection Error. Please try again later.",
+                                dismissible: false,
+                                type_: "error"
+                            };
+                        }
+                    );
+                
             } catch (error) {
                 this.loading = false;
                 this.error = {

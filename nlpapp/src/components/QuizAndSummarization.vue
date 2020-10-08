@@ -117,7 +117,7 @@ export default {
                 try {
                     this.loading = true;
     
-                    const res = await axios.post("http://127.0.0.1:5000/answer-question", {
+                    const res = await axios.post(`${this.$BASE_URL}/answer-question`, {
                         question: this.quiz,
                         text: this.$data._text
                     });
@@ -139,7 +139,7 @@ export default {
         async summarize_text() {
             try {
                 this.loading = true;
-                const res = await axios.post("http://127.0.0.1:5000/summarizer", {
+                const res = await axios.post(`${this.$BASE_URL}/summarizer`, {
                     text: this.text
                 });
 
