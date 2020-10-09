@@ -7,7 +7,7 @@
             elevation="0"
         >
             Given a sequence of words or a word, predict the next word/words. This is also called the language modeling task.
-            This done by using GloVe. "GloVe is an unsupervised learning algorithm for obtaining vector representations for words.
+            This is done by using GloVe. "GloVe is an unsupervised learning algorithm for obtaining vector representations for words.
             Training is performed on aggregated global word-word co-occurrence statistics from a corpus, and the resulting representations showcase interesting linear substructures of the word vector space."
             <br>More about GloVe can be found <a :href="glove" target="_blank">here</a>
         </v-alert>

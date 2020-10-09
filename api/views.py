@@ -35,7 +35,7 @@ Description:
 """
 @app.route("/analysis", methods=["POST"])
 @cross_origin()
-def analysis():
+def analyze():
     try:
         global classifier
         if request.method == 'POST':
@@ -56,7 +56,7 @@ def analysis():
                 res["VERBS"] = NLP.get_verbs(doc)
             if "sentiment" in data["configs"]:
                 if classifier is None:
-                    classifier = pipeline("sentiment-analysis", device=0)
+                    classifier = pipeline("sentiment-analysis", device=0 if torch.cuda.is_available() else -1)
                 data = request.get_json()
                 text = data["text"].translate(str.maketrans('', '', string.punctuation))
                 sa = NLP.sentiment_analysis(text, classifier)
