@@ -177,7 +177,6 @@ def word_analogy():
 
     return jsonify({ "analogies": analogies })
 
-
 @app.route("/get-in-touch", methods=["POST"])
 @cross_origin()
 def send_email():
@@ -193,7 +192,8 @@ def send_email():
         fullname=data["fullname"],
         message=data["message"]
     )
-    
+    return jsonify({ "success": True })
+
 def make_doc(TEXT):
     global nlp
     if nlp is None:

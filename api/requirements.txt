@@ -1,12 +1,18 @@
 annoy==1.17.0
 argon2-cffi==20.1.0
+<<<<<<< HEAD
 asgiref==3.2.10
+=======
+>>>>>>> 00c23f527be7bf1189a28af6a289b2a52b5611b8
 async-generator==1.10
 attrs==20.2.0
 backcall==0.2.0
 beautifulsoup4==4.9.1
 bleach==3.2.1
+<<<<<<< HEAD
 blinker==1.4
+=======
+>>>>>>> 00c23f527be7bf1189a28af6a289b2a52b5611b8
 blis==0.4.1
 catalogue==1.0.0
 certifi==2020.6.20
@@ -21,8 +27,11 @@ entrypoints==0.3
 filelock==3.0.12
 Flask==1.1.2
 Flask-Cors==3.0.9
+<<<<<<< HEAD
 Flask-Mail==0.9.1
 Flask-SQLAlchemy==2.4.4
+=======
+>>>>>>> 00c23f527be7bf1189a28af6a289b2a52b5611b8
 future==0.18.2
 gunicorn==20.0.4
 idna==2.10
