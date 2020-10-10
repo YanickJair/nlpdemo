@@ -1,0 +1,11 @@
+version: '3'
+services:
+    web:
+      build: .
+      stdin_open: true
+      tty: true
+      ports:
+          - "8081:8081"
+      volumes:
+        - "/nlpapp/node_modules"
+        - ".:/nlpapp"

@@ -1,0 +1,12 @@
+.ipynb_checkpoints
+nlp.code-workspace
+dlrn.ipynb
+__pycache__
+api/src/__pycache__
+api/__pycache__
+
+config.py
+
+dataset/glove.6B.200d.txt
+dataset/glove.6B.100d.txt
+dataset/glove.6B.50d.txt
