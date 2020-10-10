@@ -312,11 +312,7 @@ export default {
                     start = 10 * this.page;
                 let end = start + 10;
                 
-<<<<<<< HEAD
                 const res = axios.get(`${this.$hostname}/yelp-dataset/${start}/${end}`)
-=======
-                const res = axios.get(`${this.$BASE_URL}/yelp-dataset/${start}/${end}`)
->>>>>>> 00c23f527be7bf1189a28af6a289b2a52b5611b8
                     .then(
                         res => {
                             this.dataset = res.data.dataset;

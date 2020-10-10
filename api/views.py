@@ -180,19 +180,22 @@ def word_analogy():
 @app.route("/get-in-touch", methods=["POST"])
 @cross_origin()
 def send_email():
-    assert request.method == "POST"
-    data = request.get_json()
-    assert "sender" in data
-    assert "message" in data
-    assert "fullname" in data
+    try:
+        assert request.method == "POST"
+        data = request.get_json()
+        assert "sender" in data
+        assert "message" in data
+        assert "fullname" in data
 
-    from api import mail
-    mail.send_mail_tls(
-        user_email=data["sender"],
-        fullname=data["fullname"],
-        message=data["message"]
-    )
-    return jsonify({ "success": True })
+        from api import mail
+        mail.send_mail_tls(
+            user_email=data["sender"],
+            fullname=data["fullname"],
+            message_=data["message"]
+        )
+        return jsonify({ "success": True })
+    except:
+        jsonify({ "success": False })
 
 def make_doc(TEXT):
     global nlp

@@ -5,12 +5,12 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify';
 
-Vue.config.productionTip = true
+Vue.config.productionTip = false;
 
 if (!Vue.config.productionTip)
-  Vue.prototype.$BASE_URL = 'http://localhost:5000';
+  Vue.prototype.$hostname = 'http://localhost:5000';
 else
-  Vue.prototype.$BASE_URL = 'https://nlpdemoapi.yandrade.dev';
+  Vue.prototype.$hostname = 'https://nlpdemoapi.yandrade.dev';
 
 new Vue({
   router,

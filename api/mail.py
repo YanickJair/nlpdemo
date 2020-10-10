@@ -3,7 +3,7 @@ import json
 with open("/etc/nlp-mail-config.json") as f:
     config = json.load(f)       
 
-def send_mail_tls(message, fullname, user_email):
+def send_mail_tls(message_, fullname, user_email):
     try:
         import smtplib, ssl
         from email.mime.multipart import MIMEMultipart
@@ -28,7 +28,7 @@ def send_mail_tls(message, fullname, user_email):
                     <p>Email: {1} </p>
                     <p>Message: {2} </p>
                 </body>
-            </html>""".format(fullname, user_email, message)
+            </html>""".format(fullname, user_email, message_)
         message.attach(MIMEText(html, "html"))
 
         context = ssl.create_default_context()

@@ -19,7 +19,6 @@
                     text
                     @click="dialog = true"
                     small
-                    disabled
                 >Get in touch <v-icon small class="ml-2">mdi-email</v-icon></v-btn>
                 <a
                     v-for="site in sites"
@@ -46,6 +45,15 @@
                 <v-card-title class="body-2 grey lighten-1">
                     Wanna get in touch? Send me an email.
                 </v-card-title>
+
+                <v-alert
+                    class="ma-5"
+                    v-if="error"
+                    dense
+                    :type="error.success ? 'info' : 'error'"
+                >
+                    {{ error.message }}
+                </v-alert>
 
                 <v-card-text class="mt-5">
                     <v-form
@@ -84,10 +92,17 @@
                     <v-spacer></v-spacer>
                     <v-btn
                         color="primary"
+                        :loading="loading"
+                        :disabled="loading"
                         text
                         @click="sendMail"
                     >
                         Send
+                        <template v-slot:loader>
+                            <span class="custom-loader">
+                                <v-icon light>mdi-cached</v-icon>
+                            </span>
+                        </template>
                     </v-btn>
                     <v-btn
                         color="error"
@@ -103,9 +118,13 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     data: () => ({
         dialog: false,
+        loading: false,
+        error: null,
         valid: true,
         fullname: '',
         nameRules: [
@@ -138,11 +157,75 @@ export default {
     }),
 
     methods: {
-        sendMail() {
+        async sendMail() {
             if (this.$refs.form.validate()) {
-                console.log("OK");
+                try {
+                    this.loading = true;
+                    const res = await axios.post(`${this.$hostname}/get-in-touch`, {
+                        sender: this.email,
+                        fullname: this.fullname,
+                        message: this.message
+                    });
+
+                    if (res.data.success)
+                        this.error = {
+                            success: true,
+                            message: "Thank you for getting in touch! I'll make sure to respond as soon as possible."
+                        };
+                    else
+                        this.error = {
+                            success: false,
+                            message: "Sorry! It was no possible to send your email."
+                        };
+                } catch (error) {
+                    this.loading = false;
+                    this.error = {
+                        success: false,
+                        message: "Internal Server Error"
+                    };
+                }
+                this.loading = false;
             }
         }
     }
 }
 </script>
+
+<style>
+  .custom-loader {
+    animation: loader 1s infinite;
+    display: flex;
+  }
+  @-moz-keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @-webkit-keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @-o-keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

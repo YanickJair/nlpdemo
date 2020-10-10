@@ -130,7 +130,6 @@ export default {
                     this.quiz = null;
                 } catch (error) {
                     this.loading = false;
-                    console.log(error);
                 }
                 this.loading = false;
             }
@@ -146,7 +145,6 @@ export default {
                 this.$data._text = res.data.summary_text;
             } catch (error) {
                 this.loading = false;
-                console.log(error);
             }
             this.loading = false;
         },
