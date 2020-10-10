@@ -8,7 +8,17 @@
         >
             {{ componentType == 'QUIZ' ? alert_q : alert_sa }}
         </v-alert>
+
         <div>
+            <v-alert
+                class="ma-5"
+                v-if="error"
+                dense
+                :type="error.success ? 'info' : 'error'"
+            >
+                {{ error.message }}
+            </v-alert>
+
             <v-form
                 ref="form"
                 v-model="valid"
@@ -89,12 +99,8 @@ export default {
             loading: false,
             valid: true,
             lazy: false,
-            alert_q: `
-            Extract Question Answering from large Text. Enter a text and try to extract answer from questions you type in.
-            `,
-            alert_sa: `
-            Summarize large text and see if it makes sense to you.
-            `,
+            alert_q: `Extract Question Answering from large Text. Enter a text and try to extract answer from questions you type in.`,
+            alert_sa: `Summarize large text and see if it makes sense to you.`,
             text: null,
             _text: null,
             textRules: [
@@ -107,7 +113,8 @@ export default {
             ],
             quiz: null,
             quiz_and_answers: [],
-            summary_text: null
+            summary_text: null,
+            error: null
         }
     },
 
@@ -130,6 +137,10 @@ export default {
                     this.quiz = null;
                 } catch (error) {
                     this.loading = false;
+                    this.error = {
+                        success: false,
+                        message: "Internal Server Error"
+                    };
                 }
                 this.loading = false;
             }
@@ -145,6 +156,10 @@ export default {
                 this.$data._text = res.data.summary_text;
             } catch (error) {
                 this.loading = false;
+                this.error = {
+                    success: false,
+                    message: "Internal Server Error"
+                };
             }
             this.loading = false;
         },
