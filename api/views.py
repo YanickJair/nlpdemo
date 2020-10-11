@@ -16,7 +16,7 @@ from api.src import get_dataset
 from api.src import nlp as NLP
 
 BERT_MODEL = "bert-large-uncased-whole-word-masking-finetuned-squad"
-word_analogy_file = "glove.6B.200d.txt"
+word_analogy_file = "glove.6B.50d.txt"
 
 nlp = None
 classifier = None

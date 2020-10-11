@@ -38,6 +38,8 @@ def load_yelp_reviews(start=0, end=10):
     for _, row in review_subset[start:end].iterrows():
         reviews.append({
             "review_id": row.review_id,
+            row.review_id + '_' + row.business_id: False,
+            "business_id": row.business_id,
             "text": row.text
         })
         # reviews_by_rating[row.stars].append(row.to_dict())

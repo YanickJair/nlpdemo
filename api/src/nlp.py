@@ -59,7 +59,7 @@ def animal_component(doc, vocab):
 
 @timer
 def get_persons(doc):
-    return [(ent.text, ent.label_) for ent in doc.ents if ent.label_ == 'PERSON']
+    return [(ent.text, ent.label_) for ent in doc.ents if ent.label_ == 'PER']
 
 @timer
 def get_countries(doc):
@@ -164,7 +164,7 @@ class WorldAnalogyModel(object):
         Returns:
             numpy.array
         """
-        return self.word_vectors[self.word_to_index[word]]
+        return self.word_vectors[self.word_to_index[word]] if word in self.word_to_index else None
 
     def get_closest_to_vector(self, vector, n=1):
         """Given a vector, return its n nearest neighbors
@@ -187,19 +187,21 @@ class WorldAnalogyModel(object):
             closest_words (list) -> a list of nearest neighbors
         """
         vec = self.get_embedding(word1)
-        n = 8
+        if vec is not None:
+            n = 8
 
-        if word2 and word3:
-            n = 4
-            vec2 = self.get_embedding(word2)
-            vec3 = self.get_embedding(word3)
+            if word2 and word3:
+                n = 4
+                vec2 = self.get_embedding(word2)
+                vec3 = self.get_embedding(word3)
+                
+                # Symple hypothesis: Analogy is a spatial relationship
+                spatial_relationship = vec2 - vec
+                vec = vec3 + spatial_relationship
             
-            # Symple hypothesis: Analogy is a spatial relationship
-            spatial_relationship = vec2 - vec
-            vec = vec3 + spatial_relationship
-        
-        closest_words = self.get_closest_to_vector(vec, n=n)
-        existng_words = set([word1, word2, word3])
-        closest_words = [word for word in closest_words if word not in existng_words]
-        
-        return closest_words
+            closest_words = self.get_closest_to_vector(vec, n=n)
+            existng_words = set([word1, word2, word3])
+            closest_words = [word for word in closest_words if word not in existng_words]
+            
+            return closest_words
+        return None
