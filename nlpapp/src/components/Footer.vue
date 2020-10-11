@@ -167,6 +167,9 @@ export default {
                         message: this.message
                     });
 
+                    this.email = null;
+                    this.fullname = null;
+                    this.message = null;
                     if (res.data.success)
                         this.error = {
                             success: true,

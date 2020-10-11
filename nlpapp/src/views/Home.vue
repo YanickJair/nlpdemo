@@ -10,7 +10,13 @@
                     class="transparent text-center"
                     prominent
                 >
-                    YELP Reviews
+                    <a
+                        href="https://www.yelp.com/dataset"
+                        target="_blank"
+                        style="text-decoration: none;"
+                    >
+                        Reviews from YELP Dataset
+                    </a>
                 </v-alert>
 
                 <Status
@@ -70,6 +76,15 @@
                     <div v-if="!quiz && !summarizer && !word_analogy">
                         <v-col cols="12" v-for="review in dataset" :key="review.review_id" >
                             <v-card outlined>
+                                <!-- Loader -->
+                                <v-progress-linear
+                                    v-if="review[review.review_id + '_' + review.business_id]"
+                                    indeterminate
+                                    color="cyan"
+                                    class="mt-4"
+                                ></v-progress-linear>
+
+                                <!-- Reviews Displayer -->
                                 <component
                                     :is="cc"
                                     v-bind="{
@@ -80,15 +95,15 @@
                                 ></component>
 
                                 <v-card-actions>
-                                    <v-spacer></v-spacer>
                                     <v-btn
                                         outlined
-                                        color="indigo"
+                                        color="success"
                                         small
-                                        @click="analyze(review.review_id, review.text)"
-                                    >Analyze</v-btn>
+                                        @click="analyze(review)"
+                                    >Analyze Review</v-btn>
                                 </v-card-actions>
 
+                                <!-- Analysis Result -->
                                 <v-card-text>
                                     <ExResult
                                         v-if="beenAnalyzed(review.review_id) != null"
@@ -253,21 +268,20 @@ export default {
             this.summarizer = false;
         },
         
-        async analyze(review_id, post) {
+        async analyze(review) {
             try {
-
                 if (this.getConfig().length > 0) {
-                    this.loading = true;
+                    review[review.review_id + '_' + review.business_id] = true;
     
                     const res = await axios.post( `${this.$hostname}/analysis`, {
-                        text: post,
-                        configs: this.getConfig(post)
+                        text: review.text,
+                        configs: this.getConfig(review.text)
                     });
 
                     this.analysis_res = res.data;
-                    const is_index = _.findIndex(this.analyzed, ['review_id', review_id]);
+                    const is_index = _.findIndex(this.analyzed, ['review_id', review.review_id]);
                     const item = {
-                        review_id: review_id,
+                        review_id: review.review_id,
                         analysi: this.getIitems(res.data)
                     };
                     if (is_index == -1) {
@@ -276,7 +290,8 @@ export default {
                     else {
                         this.analyzed[is_index] = { ...item };
                     }
-                    this.loading = false;
+                    
+                    review[review.review_id + '_' + review.business_id] = false;
                     this.resultDialog = true;
                 }
             } catch (error) {
@@ -285,7 +300,7 @@ export default {
                     dismissible: false,
                     type_: "error"
                 };
-                this.loading = false;
+                review[review.review_id + '_' + review.business_id] = false;
                 this.resultDialog = false;
             }
         },

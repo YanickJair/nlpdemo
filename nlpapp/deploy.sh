@@ -3,6 +3,8 @@
 # abort on errors
 set -e
 
+rm -rf node_modules/.cache
+
 # build
 yarn build
 

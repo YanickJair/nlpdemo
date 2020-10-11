@@ -125,6 +125,7 @@ export default {
     methods: {
         async submitAnalogy() {
             this._loading = true;
+            this.error = null;
             try {
                 if (!this.words_n) {
                     if (this.word_1) {
@@ -133,11 +134,15 @@ export default {
                         });
 
                         const analogies = res.analogies;
-                        this.analogies.push({
-                            header: [this.word_1],
-                            result: analogies
-                        });
-                        this.clearFieldsAndReverse();
+                        if (analogies != null) {
+                            this.analogies.push({
+                                header: [this.word_1],
+                                result: analogies
+                            });
+                            this.clearFieldsAndReverse();
+                        }
+                        else
+                            this.error = 'Sorry, word not found in Corpus(dataset). Try another one';
                     } else
                         this.error = 'please enter a word so we can try to make an analogy based on it.';
                 } else {
