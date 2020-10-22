@@ -63,7 +63,7 @@
             </v-col>
 
             <!-- Form and text Displayer -->
-            <v-col cols="8" class="mt-5">
+            <v-col cols="8" class="mt-5" v-if="avaiable">
                 <v-progress-linear
                     v-if="loading"
                     indeterminate
@@ -138,10 +138,13 @@
                     </v-col>
                 </v-row>
             </v-col>
+
+            <v-col v-else cols="8" class="mt-8">
+                <WoringOn />
+            </v-col>
         </v-row>
 
         <!-- Footer -->
-        
     </v-container>
 </template>
 
@@ -158,7 +161,8 @@ import Summarize from '@/components/Summarize';
 import Status from '@/components/utils/Status';
 import Pagination from '@/components/utils/Pagination';
 import ExResult from '@/components/Result';
-import WordAnalogy from '@/components/WordAnalogy'
+import WordAnalogy from '@/components/WordAnalogy';
+import WoringOn from '@/components/utils/WorkinOn';
 
 export default {
     name: 'Home',
@@ -174,6 +178,7 @@ export default {
         Pagination,
         ExResult,
         WordAnalogy,
+        WoringOn
     },
 
     data() {
@@ -204,6 +209,7 @@ export default {
             error: null,
             page: 1,
             dataset_size: 0,
+            avaiable: true
         }
     },
   
@@ -409,7 +415,8 @@ export default {
     },
 
     mounted() {
-        this.getDataset();
+        if (this.avaiable)
+            this.getDataset();
     }
 }
 </script>

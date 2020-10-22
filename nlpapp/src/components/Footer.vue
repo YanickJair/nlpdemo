@@ -122,6 +122,7 @@ import axios from 'axios';
 
 export default {
     data: () => ({
+        avaiable: false,
         dialog: false,
         loading: false,
         error: null,
